@@ -1,0 +1,25 @@
+int particionar(int vetor[], int inicio, int fim) {
+    int pivo = vetor[fim];
+    int i = (inicio - 1);
+
+    for (int j = inicio; j < fim; j++) {
+        if (vetor[j] < pivo) {
+            i++;
+            int temp = vetor[i];
+            vetor[i] = vetor[j];
+            vetor[j] = temp;
+        }
+    }
+    int temp = vetor[i + 1];
+    vetor[i + 1] = vetor[fim];
+    vetor[fim] = temp;
+    return (i + 1);
+}
+
+void ordenarRapido(int vetor[], int inicio, int fim) {
+    if (inicio < fim) {
+        int indiceParticao = particionar(vetor, inicio, fim);
+        ordenarRapido(vetor, inicio, indiceParticao - 1);
+        ordenarRapido(vetor, indiceParticao + 1, fim);
+    }
+}
