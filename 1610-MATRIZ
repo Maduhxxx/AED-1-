@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+int main(void) {
+    int T;
+    if (scanf("%d", &T) != 1) return 0;
+    while (T--) {
+        int N, M;
+        if (scanf("%d %d", &N, &M) != 2) return 0;
+
+        int **mat = (int **)malloc((N + 1) * sizeof(int *));
+        for (int i = 0; i <= N; ++i) {
+            mat[i] = (int *)calloc(N + 1, sizeof(int));
+        }
+        int *indeg = (int *)calloc(N + 1, sizeof(int));
+
+        for (int i = 0; i < M; ++i) {
+            int A, B;
+            scanf("%d %d", &A, &B);
+            if (A >= 1 && A <= N && B >= 1 && B <= N) {
+                if (mat[A][B] == 0) {
+                    mat[A][B] = 1;
+                    indeg[B]++;
+                }
+            }
+        }
+
+        int *q = (int *)malloc((N + 5) * sizeof(int));
+        int h = 0, t = 0;
+        for (int i = 1; i <= N; ++i) if (indeg[i] == 0) q[t++] = i;
+
+        int proc = 0;
+        while (h < t) {
+            int u = q[h++];
+            proc++;
+            for (int v = 1; v <= N; ++v) {
+                if (mat[u][v]) {
+                    if (--indeg[v] == 0) q[t++] = v;
+                }
+            }
+        }
+
+        printf(proc < N ? "SIM\n" : "NAO\n");
+
+        free(q);
+        free(indeg);
+        for (int i = 0; i <= N; ++i) free(mat[i]);
+        free(mat);
+    }
+    return 0;
