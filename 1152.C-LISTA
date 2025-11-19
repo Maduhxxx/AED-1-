@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct Node {
+    int v;
+    struct Node *next;
+} Node;
+
+typedef struct {
+    Node **head;
+    int n;
+} Graph;
+
+Graph *graph_create(int n) {
+    Graph *g = (Graph *)malloc(sizeof(Graph));
+    g->n = n;
+    g->head = (Node **)calloc(n + 1, sizeof(Node *));
+    return g;
+}
+
+void graph_add_edge(Graph *g, int u, int v) {
+    Node *no = (Node *)malloc(sizeof(Node));
+    no->v = v;
+    no->next = g->head[u];
+    g->head[u] = no;
+}
+
+void graph_free(Graph *g) {
+    for (int i = 1; i <= g->n; ++i) {
+        Node *cur = g->head[i];
+        while (cur) {
+            Node *nx = cur->next;
+            free(cur);
+            cur = nx;
+        }
+    }
+    free(g->head);
+    free(g);
+}
+
+bool tem_ciclo_kahn(Graph *g, int *indeg) {
+    int *q = (int *)malloc((g->n + 5) * sizeof(int));
+    int h = 0, t = 0;
+    for (int i = 1; i <= g->n; ++i) if (indeg[i] == 0) q[t++] = i;
+    int proc = 0;
+    while (h < t) {
+        int u = q[h++];
+        proc++;
+        for (Node *p = g->head[u]; p; p = p->next) {
+            int v = p->v;
+            if (--indeg[v] == 0) q[t++] = v;
+        }
+    }
+    free(q);
+    return proc < g->n;
+}
+
+int main(void) {
+    int T;
+    if (scanf("%d", &T) != 1) return 0;
+    while (T--) {
+        int N, M;
+        if (scanf("%d %d", &N, &M) != 2) return 0;
+        Graph *g = graph_create(N);
+        int *indeg = (int *)calloc(N + 1, sizeof(int));
+        for (int i = 0; i < M; ++i) {
+            int A, B;
+            scanf("%d %d", &A, &B);
+            if (A >= 1 && A <= N && B >= 1 && B <= N) {
+                graph_add_edge(g, A, B);
+                indeg[B]++;
+            }
+        }
+        bool ciclo = tem_ciclo_kahn(g, indeg);
+        printf(ciclo ? "SIM\n" : "NAO\n");
+        free(indeg);
+        graph_free(g);
+    }
+    return 0;
+}
